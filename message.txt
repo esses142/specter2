@@ -1,0 +1,167 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+	Name = "Specter 2",
+	LoadingTitle = "Specter 2 script",
+	LoadingSubtitle = "by nova",
+	ConfigurationSaving = {
+		Enabled = true,
+		FolderName = "EHH",
+		FileName = "omg"
+	},
+	KeySystem = false,
+	KeySettings = {
+		Title = "Hub",
+		Subtitle = "Key System",
+		Note = "Join the discord",
+		SaveKey = true,
+		Key = "ABCDEF"
+	}
+})
+
+local MainTab = Window:CreateTab("Main", 4483362458)
+local MiscTab = Window:CreateTab("Misc", 4483362458)
+local TeleportTab = Window:CreateTab("Teleport", 4483362458)
+
+local MainSection = MainTab:CreateSection("Main things")
+local MiscSection = MiscTab:CreateSection("Misc settings")
+local TeleportSection = TeleportTab:CreateSection("Teleport features")
+
+local services = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local function setBrightness(brightness)
+	services.Brightness = brightness
+end
+
+local function setDaytime()
+	services:SetMinutesAfterMidnight(720)
+end
+
+local function destroyDoors()
+	local doors = Workspace.Map:FindFirstChild("Doors")
+	if doors then
+		doors:Destroy()
+	end
+end
+
+local function createTeleport(location)
+	return function()
+		LocalPlayer.Character.HumanoidRootPart.CFrame = location()
+	end
+end
+
+local function teleportToBone()
+	local bonePrompt = Workspace.Map.Bone.BonePrompt
+	if bonePrompt then
+		-- Teleport to BonePrompt
+		LocalPlayer.Character.HumanoidRootPart.CFrame = bonePrompt.CFrame
+		
+		-- Simulate pressing F (interact)
+		-- Replace with actual RemoteEvent call or game-specific interaction method
+		-- Example: RemoteEvent:FireServer("InteractWithBonePrompt")
+		-- Example: game:GetService("ReplicatedStorage").InteractEvent:FireServer("BonePrompt")
+		
+		-- Teleport back to original location
+		wait(1) -- Adjust delay as needed
+		LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 0, 0) -- Replace with original location
+	else
+		warn("BonePrompt not found")
+	end
+end
+
+-- Teleport locations
+local locations = {
+	closetFamilyHome = function()
+		return CFrame.new(459.5122985839844, 6.265266418457031, -24.511207580566406)
+	end,
+	closetHideout = function()
+		return CFrame.new(1761.3792724609375, -2.207547187805176, -140.32106018066406)
+	end,
+	closetSafehouse = function()
+		return CFrame.new(984.469482421875, 9.692434310913086, -104.7901382446289)
+	end,
+	closetAsylum = function()
+		return CFrame.new(1052.380859375, 24.192420959472656, -1046.205322265625)
+	end,
+	ghostRoom = function()
+		if Workspace.emfpart2 then
+			return Workspace.emfpart2.CFrame
+		else
+			warn("Ghost room not found")
+			return CFrame.new(0, 0, 0) -- Default to origin if ghost room not found
+		end
+	end
+}
+
+-- Main Tab
+MainTab:CreateButton({
+	Name = "Delete Doors",
+	Callback = function()
+		destroyDoors()
+	end,
+})
+
+-- Misc Tab
+MiscTab:CreateSlider({
+	Name = "Set Walkspeed",
+	Range = {1, 100},
+	Increment = 1,
+	Suffix = "Walkspeed",
+	CurrentValue = 16,  -- Default walkspeed, adjust as needed
+	Flag = "WalkspeedSlider",
+	Callback = function(Value)
+		game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = Value
+	end,
+})
+
+MiscTab:CreateButton({
+	Name = "Set Daytime",
+	Callback = function()
+		setDaytime()
+	end,
+})
+
+MiscTab:CreateSlider({
+	Name = "Set Brightness",
+	Range = {0, 100},
+	Increment = 1,
+	Suffix = "Brightness",
+	CurrentValue = 50,
+	Flag = "Slider1",
+	Callback = function(Value)
+		setBrightness(Value)
+	end,
+})
+-- Teleport Tab
+TeleportTab:CreateButton({
+	Name = "Teleport to Ghost Room",
+	Callback = createTeleport(locations.ghostRoom)
+})
+
+TeleportTab:CreateButton({
+	Name = "Teleport to Van",
+	Callback = createTeleport(function() return CFrame.new(0, 0, 0) end) -- Replace with actual location
+})
+
+TeleportTab:CreateButton({
+	Name = "Teleport to Closet - Family Home",
+	Callback = createTeleport(locations.closetFamilyHome)
+})
+
+TeleportTab:CreateButton({
+	Name = "Teleport to Closet - Hideout",
+	Callback = createTeleport(locations.closetHideout)
+})
+
+TeleportTab:CreateButton({
+	Name = "Teleport to Closet - Safehouse",
+	Callback = createTeleport(locations.closetSafehouse)
+})
+
+TeleportTab:CreateButton({
+	Name = "Teleport to Closet - Asylum",
+	Callback = createTeleport(locations.closetAsylum)
+})
